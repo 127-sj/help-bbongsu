@@ -1,0 +1,1316 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff6ec">
+  <meta property="og:title" content="뿡수를 도와줘!">
+  <meta property="og:description" content="아바타를 꾸미고 뿡수의 고민을 함께 풀어주는 포근한 픽셀 게임">
+  <title>뿡수를 도와줘!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #594a47;
+      --muted: #806c64;
+      --accent: #f28ca5;
+      --accent-soft: #ffe3ea;
+      --accent-strong: #d9607f;
+      --accent-cta: #b94768;
+      --accent-brown: #a9745b;
+      --cream: #fff6ec;
+      --peach: #f8e1d0;
+      --line: #eadbd0;
+      --shadow: 0 8px 22px rgba(111, 81, 66, .09);
+      --display-font: "Jua", "Malgun Gothic", sans-serif;
+      --body-font: "Gowun Dodum", "Malgun Gothic", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    h1, h2, h3, p, button, .choice-card, .site-title, .site-tag, .shop-sign,
+    .stage-badge, .boongsoo-line, .thank-you-bubble, .result-title,
+    .result-description, .footer-note, .inventory li {
+      text-wrap: pretty;
+    }
+    h1, h2, .dialogue p, .intro-copy, .result-title { text-wrap: balance; }
+
+    body {
+      min-width: 0;
+      min-height: 100vh;
+      margin: 0;
+      padding: 18px 14px 30px;
+      color: var(--ink);
+      background-color: var(--cream);
+      background-image:
+        linear-gradient(rgba(255,255,255,.32) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.32) 1px, transparent 1px);
+      background-size: 18px 18px;
+      font-family: var(--body-font), sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    .page { width: min(100%, 560px); margin: 0 auto; }
+    .site-head { display: flex; justify-content: space-between; align-items: center; margin: 0 3px 13px; font-size: 12px; }
+    .site-title { font-weight: 700; }
+    .site-tag { color: var(--muted); font-size: 10px; }
+    .game-frame {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: #fffdf8;
+      box-shadow: var(--shadow);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; animation: screen-in .24s steps(3, end); }
+    @keyframes screen-in { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .intro-screen { padding: 25px 22px 23px; text-align: center; }
+    .shop-sign {
+      display: inline-block;
+      margin: 0 auto 17px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff1df;
+      box-shadow: 0 4px 10px rgba(111, 81, 66, .08);
+      font-size: 11px;
+      letter-spacing: .04em;
+    }
+    .intro-screen h1 { margin: 0; font-size: clamp(24px, 7vw, 35px); line-height: 1.4; }
+    .intro-screen h1, .pixel-button, .stage-meta, .hud-label, .dialogue h2,
+    .choice-card, .boongsoo-line, .thank-you-bubble, .result-title {
+      font-family: var(--display-font), sans-serif;
+    }
+    .intro-screen h1 span { color: var(--accent-strong); }
+    .intro-copy { margin: 9px 0 5px; color: var(--muted); font-size: 11px; line-height: 1.9; }
+    .intro-sprite-wrap {
+      width: 100%;
+      margin: 10px auto 16px;
+      padding: 9px 0 4px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(#f7efe9 0 72%, #f8e1d0 72%);
+    }
+    .pixel-character { display: block; width: min(230px, 68vw); height: auto; margin: auto; image-rendering: pixelated; }
+    .intro-sprite-wrap .pixel-character { animation: bob 1.3s steps(2, end) infinite; }
+    @keyframes bob { 50% { transform: translateY(-4px); } }
+    .pixel-button {
+      min-height: 48px;
+      padding: 9px 17px;
+      border: 1px solid #e6c6c1;
+      border-radius: 18px;
+      background: var(--accent);
+      color: #49353a;
+      box-shadow: 0 5px 12px rgba(111, 81, 66, .1);
+      font-size: 12px;
+      cursor: pointer;
+      transition: transform .12s steps(2, end), box-shadow .12s steps(2, end);
+    }
+    .pixel-button:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(111, 81, 66, .14); }
+    .pixel-button:active { transform: scale(.98); box-shadow: 0 2px 6px rgba(111, 81, 66, .1); }
+    .press-start { min-width: 200px; color: #fff; border-color: var(--accent-cta); background: var(--accent-cta); animation: blink .9s steps(2, end) infinite; }
+    @keyframes blink { 50% { filter: brightness(1.16); } }
+
+    .hud { padding: 14px 16px 11px; border-bottom: 1px solid var(--line); background: #fff8f5; }
+    .hud-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }
+    .hud-label { color: var(--accent-brown); font-size: 10px; }
+    .hearts { display: flex; gap: 4px; font-family: sans-serif; font-size: 17px; line-height: 1; }
+    .heart { color: #f3d9d8; transition: color .18s ease, transform .18s ease; }
+    .heart.filled { color: var(--accent); transform: translateY(-2px); }
+    .heart.current { animation: heart-pop .55s steps(2, end) infinite alternate; }
+    @keyframes heart-pop { to { transform: scale(1.18); } }
+    .hud-meter { height: 10px; padding: 1px; border: 1px solid var(--line); border-radius: 999px; background: white; }
+    .hud-meter-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-strong)); transition: width .25s ease; }
+
+    .play-area { padding: 14px 16px 19px; }
+    .stage-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 9px; color: var(--accent-brown); font-size: 10px; }
+    .stage-badge { padding: 5px 9px; border: 1px solid #f1c9d2; border-radius: 12px; background: var(--accent-soft); }
+    .character-stage {
+      position: relative;
+      display: grid;
+      min-height: 204px;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.85) 0 3px, transparent 4px),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,.7) 0 3px, transparent 4px),
+        linear-gradient(#f7eee9 0 78%, #f8e1d0 78%);
+    }
+    .character-stage::before, .character-stage::after {
+      position: absolute;
+      content: "";
+      width: 20px;
+      height: 20px;
+      background: #fff2c7;
+      box-shadow: 10px 0 #fff2c7, 0 10px #fff2c7, 10px 10px #fff2c7;
+      transform: scale(.45);
+    }
+    .character-stage::before { top: 24px; left: 18%; }
+    .character-stage::after { top: 47px; right: 17%; transform: scale(.3); }
+    .character-stage .pixel-character { z-index: 1; width: min(220px, 63vw); }
+    .boongsoo-line {
+      display: table;
+      max-width: 92%;
+      margin: 10px 0 0 auto;
+      padding: 8px 12px;
+      border: 1px solid #f1c9d2;
+      border-radius: 16px 16px 4px 16px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 10px;
+      line-height: 1.7;
+      animation: bubble-in .25s ease both;
+    }
+    @keyframes bubble-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .dialogue {
+      position: relative;
+      margin: 12px 0 14px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 5px 14px rgba(111, 81, 66, .07);
+    }
+    .dialogue::after {
+      position: absolute;
+      right: 20px;
+      bottom: -8px;
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid var(--ink);
+      border-bottom: 2px solid var(--ink);
+      background: white;
+      content: "";
+      transform: rotate(45deg);
+    }
+    .dialogue h2 { margin: 0 0 6px; color: var(--accent-strong); font-size: 14px; line-height: 1.6; }
+    .dialogue p {
+      margin: 0;
+      color: #665b56;
+      font-size: 11px;
+      line-height: 1.8;
+      white-space: pre-line;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      text-wrap: balance;
+    }
+    .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    .choice-card {
+      position: relative;
+      display: flex;
+      min-height: 68px;
+      align-items: center;
+      gap: 9px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fffdfa;
+      box-shadow: 0 4px 10px rgba(111, 81, 66, .07);
+      text-align: left;
+      font-size: 11px;
+      line-height: 1.55;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .choice-card:hover { transform: translateY(-2px); box-shadow: 0 7px 14px rgba(111, 81, 66, .1); background: #fffaf5; }
+    .choice-card:active { transform: scale(.98); box-shadow: 0 2px 6px rgba(111, 81, 66, .08); }
+    .choice-card.selected { background: var(--accent-soft); border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -4px; transform: scale(1.02); }
+    .choice-icon { flex: 0 0 auto; font-family: sans-serif; font-size: 22px; }
+    .choice-name { display: block; font-size: 14px; font-weight: 700; }
+    .choice-note { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .color-choice { min-height: 66px; }
+    .color-swatch { flex: 0 0 25px; width: 25px; height: 25px; border: 1px solid var(--line); border-radius: 50%; }
+    .color-swatch.other-color-swatch {
+      display: grid;
+      place-items: center;
+      background: conic-gradient(#f28ca5 0 16.6%, #f5c85f 16.6% 33.2%, #8ecf9e 33.2% 49.8%, #84b9e8 49.8% 66.4%, #b29ad8 66.4% 83%, #f28ca5 83%);
+      color: #fff;
+      font: 700 15px/1 sans-serif;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+    }
+    .custom-color-field { margin-top: 12px; }
+    .custom-color-label { display: block; margin-bottom: 6px; color: var(--ink); font-size: 13px; }
+    .custom-color-input { min-height: 48px; border: 2px solid var(--accent); font-size: 16px; }
+    .custom-color-hint { min-height: 18px; margin: 6px 2px 0; color: var(--accent-strong); font-size: 12px; }
+    .multi-help { margin: 9px 0 0; color: var(--muted); font-size: 9px; line-height: 1.7; }
+    .field-label { display: block; margin: 11px 0 6px; font-size: 10px; }
+    .text-input, .text-area {
+      display: block;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      outline: none;
+      background: white;
+      color: var(--ink);
+      font-family: var(--body-font), sans-serif;
+      font-size: 11px;
+    }
+    .text-input { min-height: 42px; padding: 7px 10px; }
+    .text-area { min-height: 100px; padding: 9px 10px; resize: vertical; line-height: 1.8; }
+    .text-input:focus, .text-area:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(242, 140, 165, .16); }
+    .text-input::placeholder, .text-area::placeholder { color: #aaa6b5; }
+    .stage-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 15px; }
+    .stage-actions .pixel-button { min-height: 42px; font-size: 13px; }
+    .secondary-button { background: #fff1e5; }
+    .continue-button { margin-left: auto; color: #fff; border-color: var(--accent-cta); background: var(--accent-cta); }
+    .error-message { min-height: 18px; margin: 8px 0 0; color: #b54865; font-size: 10px; line-height: 1.6; }
+
+    .complete-screen { padding: 28px 20px 34px; text-align: center; }
+    .complete-screen h2 { margin: 0 0 7px; font-size: 17px; }
+    .complete-screen p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.8; }
+    .complete-stage {
+      position: relative;
+      display: grid;
+      min-height: 245px;
+      place-items: center;
+      margin: 14px 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(#f7eee9 0 76%, #f8e1d0 76%);
+    }
+    .complete-character { position: relative; bottom: auto; width: min(185px, 54vw) !important; animation: bob 1s steps(2, end) infinite; }
+    .complete-sparkles { position: absolute; color: #e6a931; font-family: sans-serif; font-size: 26px; animation: sparkle .5s steps(2, end) infinite alternate; }
+    @keyframes sparkle { to { transform: scale(1.35); opacity: .55; } }
+
+    .result-screen { padding: 19px 16px 20px; }
+    .result-topline { margin: 0 0 10px; color: var(--accent-strong); font-size: 10px; text-align: center; }
+    .result-hero {
+      padding: 16px 12px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(145deg, #fbf1ed, #fff5e9 55%, #f8e1d0);
+      box-shadow: 0 6px 16px rgba(111, 81, 66, .07);
+      text-align: center;
+    }
+    .result-hero { padding: 18px 12px 20px; }
+    .couple-stage {
+      position: relative;
+      display: flex;
+      min-height: 242px;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0;
+      overflow: hidden;
+      border: 1px solid #f1d8cf;
+      border-radius: 22px;
+      background: #fff8f4;
+    }
+    .couple-stage::before, .couple-stage::after {
+      position: absolute;
+      bottom: 11px;
+      z-index: 0;
+      width: 68px;
+      height: 11px;
+      border-radius: 50%;
+      background: rgba(169, 116, 91, .12);
+      content: "";
+    }
+    .couple-stage::before { left: 22%; }
+    .couple-stage::after { right: 15%; }
+    .couple-boy, .boongsoo-character { position: relative; z-index: 1; width: min(198px, 50vw); margin: 0; image-rendering: pixelated; }
+    .couple-boy { animation: couple-bob 1.8s ease-in-out infinite; }
+    .boongsoo-character { width: min(180px, 46vw); margin-left: max(-64px, -16vw); animation: couple-bob 1.8s ease-in-out .35s infinite; }
+    @keyframes couple-bob { 50% { transform: translateY(-7px); } }
+    .pixel-hearts { position: absolute; inset: 8px 0 0; z-index: 2; overflow: hidden; opacity: 0; pointer-events: none; }
+    .pixel-hearts span {
+      position: absolute;
+      top: 36%;
+      left: var(--heart-left);
+      color: var(--accent);
+      font: var(--heart-size, 18px)/1 sans-serif;
+      clip-path: polygon(25% 0, 40% 0, 40% 12%, 60% 12%, 60% 0, 75% 0, 75% 12%, 90% 12%, 90% 28%, 100% 28%, 100% 60%, 88% 60%, 88% 75%, 75% 75%, 75% 88%, 62% 88%, 62% 100%, 38% 100%, 38% 88%, 25% 88%, 25% 75%, 12% 75%, 12% 60%, 0 60%, 0 28%, 12% 28%, 12% 12%, 25% 12%);
+    }
+    .is-celebrating .pixel-hearts { opacity: 1; }
+    .is-celebrating .pixel-hearts span { animation: heart-rise 2.8s steps(5, end) var(--heart-delay) infinite; }
+    @keyframes heart-rise {
+      0% { opacity: 0; transform: translateY(12px) scale(.7); }
+      15% { opacity: 1; }
+      85% { opacity: .9; }
+      100% { opacity: 0; transform: translateY(-125px) scale(1.15); }
+    }
+    .thank-you-bubble {
+      width: fit-content;
+      margin: 12px auto 4px;
+      padding: 9px 14px;
+      border: 1px solid #f1c9d2;
+      border-radius: 18px 18px 18px 5px;
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 11px;
+      animation: bubble-in .3s ease both;
+    }
+    .is-celebrating .thank-you-bubble:not([hidden]) { animation-delay: .08s; }
+    .result-hero > [hidden] { display: none; }
+    .result-title { margin: 9px 0 7px; color: var(--accent-strong); font-size: clamp(18px, 5vw, 24px); line-height: 1.65; }
+    .result-description { margin: 0; color: #625750; font-size: 10px; line-height: 1.8; }
+    .inventory-details { margin-top: 15px; border: 1px solid var(--line); border-radius: 18px; background: #fffaf6; }
+    .inventory-details summary { padding: 12px; color: var(--accent-brown); font-size: 11px; cursor: pointer; }
+    .inventory { display: grid; gap: 6px; margin: 0; padding: 0 9px 10px; list-style: none; }
+    .inventory li { display: grid; grid-template-columns: 90px 1fr; gap: 7px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-size: 10px; line-height: 1.65; }
+    .inventory-label { color: var(--muted); }
+    .inventory-value { overflow-wrap: anywhere; }
+    .send-button { width: 100%; margin-top: 14px; color: #fff; border-color: var(--accent-cta); background: var(--accent-cta); }
+    .send-button:disabled { cursor: not-allowed; opacity: .62; }
+    .restart-button { display: block; margin: 12px auto 0; background: #fff1e5; }
+    .footer-note { margin: 14px 5px 0; color: var(--muted); font-size: 9px; line-height: 1.8; text-align: center; }
+    [hidden] { display: none !important; }
+
+    body {
+      background-color: var(--cream);
+      background-image:
+        radial-gradient(ellipse at 7% 4%, rgba(255,255,255,.9), transparent 25rem),
+        radial-gradient(ellipse at 95% 17%, rgba(248,225,208,.72), transparent 26rem),
+        linear-gradient(160deg, var(--cream), #f8e9dc 58%, #fbf1e7);
+      background-size: auto;
+      -webkit-font-smoothing: antialiased;
+    }
+    .site-head { margin: 0 4px 16px; }
+    .site-title { color: var(--accent-brown); letter-spacing: .03em; }
+    .site-tag { color: var(--muted); }
+    .game-frame {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255, 253, 250, .96);
+      box-shadow: 0 14px 36px rgba(111, 81, 66, .12);
+    }
+    .intro-screen { padding: 27px 22px 25px; }
+    .shop-sign {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff1df;
+      box-shadow: 0 4px 10px rgba(111, 81, 66, .08);
+    }
+    .intro-sprite-wrap {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(#f7efe9 0 72%, #f8e1d0 72%);
+    }
+    .pixel-button {
+      border: 1px solid #e6c6c1;
+      border-radius: 18px;
+      background: var(--accent);
+      box-shadow: 0 5px 12px rgba(111, 81, 66, .1);
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+    .pixel-button:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(111, 81, 66, .14); }
+    .pixel-button:active { transform: scale(.98); box-shadow: 0 2px 6px rgba(111, 81, 66, .1); }
+    .press-start { border-color: var(--accent-strong); background: var(--accent-strong); }
+    .hud { border-bottom: 1px solid var(--line); background: #fff8f5; }
+    .hud-meter { height: 10px; padding: 1px; border: 1px solid var(--line); border-radius: 999px; }
+    .hud-meter-fill { border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--accent-strong)); }
+    .stage-badge { border: 1px solid #f1c9d2; border-radius: 12px; background: var(--accent-soft); }
+    .character-stage {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,.85) 0 3px, transparent 4px),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,.7) 0 3px, transparent 4px),
+        linear-gradient(#f7eee9 0 78%, #f8e1d0 78%);
+    }
+    .dialogue {
+      border: 1px solid #ecddd3;
+      border-radius: 20px;
+      box-shadow: 0 5px 14px rgba(111, 81, 66, .07);
+    }
+    .dialogue::after { display: none; }
+    .dialogue h2 { color: var(--accent-strong); }
+    .choice-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fffdfa;
+      box-shadow: 0 4px 10px rgba(111, 81, 66, .07);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    .choice-card:hover { transform: translateY(-2px); box-shadow: 0 7px 14px rgba(111, 81, 66, .1); background: #fffaf5; }
+    .choice-card:active { transform: scale(.98); box-shadow: 0 2px 6px rgba(111, 81, 66, .08); }
+    .choice-card.selected { background: var(--accent-soft); border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -4px; transform: scale(1.02); }
+    .color-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .color-choice { min-height: 56px; padding: 7px 10px; }
+    .color-swatch { border: 1px solid #e1d4cb; border-radius: 50%; box-shadow: none; }
+    .color-choice[data-value="흰색"] .color-swatch { border: 2px solid #aaa09b; }
+    .choice-name { font-size: 14px; }
+    .choice-note { font-size: 11px; }
+    .choice-grid:not(.color-grid) .choice-card { min-height: 76px; }
+    .complete-screen { padding: 25px 20px; }
+    .complete-stage {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: linear-gradient(#f7eee9 0 76%, #f8e1d0 76%);
+    }
+    .result-screen { padding: 19px 16px 22px; }
+    .result-hero {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: linear-gradient(145deg, #fbf1ed, #fff5e9 55%, #f8e1d0);
+      box-shadow: 0 6px 16px rgba(111, 81, 66, .07);
+    }
+    .result-title { color: var(--accent-strong); }
+    .inventory-details { overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: #fffaf6; }
+    .send-button { border-color: var(--accent-cta); border-radius: 18px; background: var(--accent-cta); }
+    .send-button:hover { background: #a83e5d; }
+    .send-button:disabled { opacity: .72; cursor: default; }
+    .restart-button { border: 1px solid #e7d9d0; border-radius: 18px; background: #f8eee8; }
+    .footer-note { color: var(--muted); }
+    .text-input, .text-area { border: 1px solid var(--line); border-radius: 16px; }
+    .text-input:focus, .text-area:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(242, 140, 165, .16); }
+    @media (max-width: 390px) {
+      .couple-stage { min-height: 220px; gap: 0; }
+      .couple-boy { width: min(175px, 45vw); }
+      .boongsoo-character { width: min(165px, 42vw); margin-left: max(-78px, -21vw); }
+    }
+    .inventory li { border-radius: 12px; }
+
+    @media (max-width: 390px) {
+      body { padding: 12px 10px 24px; }
+      .site-head { font-size: 10px; }
+      .hud { padding: 12px 11px 9px; }
+      .hearts { gap: 2px; font-size: 15px; }
+      .play-area { padding: 12px 11px 16px; }
+      .choice-card { gap: 6px; padding: 8px; font-size: 12px; }
+      .choice-icon { font-size: 19px; }
+      .choice-name { font-size: 13px; }
+      .choice-note { font-size: 10px; }
+      .inventory li { grid-template-columns: 78px 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="site-head">
+      <span class="site-title">✦ 뿡수의 아바타 놀이터 ✦</span>
+      <span class="site-tag">둘이 함께하는 취향 탐험</span>
+    </header>
+
+    <div class="game-frame">
+      <section class="screen intro-screen active" id="start-screen" aria-labelledby="game-title">
+        <div class="shop-sign">★ 뿡수의 부탁 ★</div>
+        <h1 id="game-title"><span>뿡수를 도와줘!</span></h1>
+        <p class="intro-copy">뿡수가 선물을 고르고 있어요 🎁<br>아바타를 꾸며서 뿡수를 도와주세요!</p>
+        <div class="intro-sprite-wrap">
+          <canvas class="pixel-character" width="160" height="192" aria-label="짧은 머리 군인 캐릭터"></canvas>
+        </div>
+        <button class="pixel-button press-start" id="start-button" type="button">▶ PRESS START</button>
+      </section>
+
+      <section class="screen game-screen" id="game-screen" aria-label="아바타 스타일 선택 게임">
+        <header class="hud">
+          <div class="hud-top">
+            <span class="hud-label" id="stage-counter">STAGE 1 / 7</span>
+            <div class="hearts" id="hearts" aria-label="퀘스트 진행도"></div>
+          </div>
+          <div class="hud-meter" role="progressbar" aria-label="미션 진행도" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0">
+            <div class="hud-meter-fill" id="meter-fill"></div>
+          </div>
+        </header>
+        <div class="play-area">
+          <div class="stage-meta"><span class="stage-badge" id="stage-category">뿡수의 고민</span><span>BBONGSU & BBONGKYO</span></div>
+          <div class="character-stage">
+            <canvas class="pixel-character" width="160" height="192" aria-label="후드를 입은 짧은 머리 군인 픽셀 캐릭터"></canvas>
+          </div>
+          <div class="boongsoo-line" id="boongsoo-line" aria-live="polite"></div>
+          <div class="dialogue">
+            <h2 id="stage-title"></h2>
+            <p id="stage-description"></p>
+          </div>
+          <div id="stage-content"></div>
+          <div class="stage-actions" id="stage-actions">
+            <button class="pixel-button secondary-button" id="back-button" type="button">← 이전</button>
+            <button class="pixel-button continue-button" id="continue-button" type="button">뿡수에게 알려주기 →</button>
+          </div>
+          <p class="error-message" id="error-message" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="screen complete-screen" id="complete-screen" aria-live="polite">
+        <h2>짜잔, 완성!</h2>
+        <p>뿡수의 고민을 함께 풀어줘서 고마워!</p>
+        <div class="complete-stage">
+          <canvas class="pixel-character complete-character" width="160" height="192" aria-label="완성된 아바타"></canvas>
+          <span class="complete-sparkles" style="top:38px;left:25%">✦</span>
+          <span class="complete-sparkles" style="top:66px;right:23%;animation-delay:.2s">✧</span>
+        </div>
+        <p>두 사람의 따뜻한 엔딩이 기다리고 있어.</p>
+      </section>
+
+      <section class="screen result-screen" id="result-screen" aria-labelledby="result-title">
+        <p class="result-topline">★ 뿡수와 함께 만든 오늘의 아바타 ★</p>
+        <div class="result-hero">
+          <div class="couple-stage">
+            <div class="pixel-hearts" aria-hidden="true">
+              <span style="--heart-delay:0s;--heart-left:42%;--heart-size:14px">♥</span>
+              <span style="--heart-delay:.22s;--heart-left:46%;--heart-size:22px">♥</span>
+              <span style="--heart-delay:.44s;--heart-left:50%;--heart-size:16px">♥</span>
+              <span style="--heart-delay:.66s;--heart-left:54%;--heart-size:24px">♥</span>
+              <span style="--heart-delay:.88s;--heart-left:58%;--heart-size:14px">♥</span>
+            </div>
+            <canvas class="pixel-character couple-boy" width="160" height="192" aria-label="완성된 후드를 입은 짧은 머리 군인 아바타"></canvas>
+            <canvas class="boongsoo-character" width="160" height="192" aria-label="똥머리 스타일의 뿡수 픽셀 아바타"></canvas>
+          </div>
+          <p class="thank-you-bubble" id="thank-you-bubble" aria-live="polite" role="status" hidden>뿡수: 도와줘서 고마워~ 💕</p>
+          <h2 class="result-title" id="result-title"></h2>
+          <p class="result-description" id="result-description"></p>
+        </div>
+        <details class="inventory-details">
+          <summary>☁ 내 코디 보기</summary>
+          <ul class="inventory" id="inventory"></ul>
+        </details>
+        <button class="pixel-button send-button" id="send-button" type="button">뿡수에게 알려주기</button>
+        <button class="pixel-button restart-button" id="restart-button" type="button">↻ 처음부터 다시하기</button>
+      </section>
+    </div>
+    <p class="footer-note" id="footer-note" hidden></p>
+  </main>
+
+  <script>
+    const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbznKkKUoS87jhSH2SXzK8YYkHmHubtWCeTeXTmFApyTCxjl-s9Jyp8lXA1uH_8BCKagkg/exec"; // 배포한 Apps Script 웹 앱 URL을 여기에 붙여넣으세요.
+    const TOTAL_STAGES = 7;
+    const colors = [
+      { name: "검정", main: "#34333a", shade: "#232229", swatch: "#34333a", logo: "#fffdf8" },
+      { name: "회색", main: "#85838a", shade: "#65636a", swatch: "#85838a", logo: "#fffdf8" },
+      { name: "네이비", main: "#364c70", shade: "#263752", swatch: "#364c70", logo: "#fffdf8" },
+      { name: "흰색", main: "#fffdf8", shade: "#e6ddd3", swatch: "#fffdf8", logo: "#28272c" },
+      { name: "멜란지", main: "#c5c3bf", shade: "#96948f", swatch: "repeating-linear-gradient(135deg,#d8d7d3 0 4px,#b8b6b2 4px 7px)", logo: "#28272c" },
+      { name: "베이지", main: "#d9c4a2", shade: "#b79b72", swatch: "#d9c4a2", logo: "#28272c" },
+      { name: "차콜", main: "#55545a", shade: "#39383e", swatch: "#55545a", logo: "#fffdf8" },
+      { name: "브라운", main: "#8a624b", shade: "#674633", swatch: "#8a624b", logo: "#fffdf8" }
+    ];
+    const stages = [
+      {
+        category: "첫 번째 고민",
+        title: "STAGE 1. 뿡수의 첫 고민! 어떤 후드가 좋아?",
+        description: "뿡수가 아바타에게 후드를 입혀주려 해.\n포근한 후드티? 편한 후드집업?",
+        key: "garment",
+        choices: [
+          { value: "후드티", icon: "👕", note: "툭 입으면 오늘 코디 끝!" },
+          { value: "후드집업", icon: "🧥", note: "열고 닫고 편하게 조절!" }
+        ]
+      },
+      {
+        category: "첫 번째 색",
+        title: "STAGE 2. 뿡수가 색을 고르려나 봐!",
+        description: "아바타에게 입혀줄 첫 번째 색을 골라줘.\n옷 색이 바로 바뀔 거야!",
+        key: "colorFirst",
+        choices: [...colors.map((color) => ({ value: color.name, swatch: color.swatch })), { value: "그 외 색", otherColor: true }]
+      },
+      {
+        category: "두 번째 색",
+        title: "STAGE 3. 뿡수가 하나 더 물어봐!",
+        description: "두 번째로 마음에 드는 색도 알려줘.\n먼저 고른 색은 선택지에서 빠져 있어!",
+        key: "colorSecond",
+        choices: [...colors.map((color) => ({ value: color.name, swatch: color.swatch })), { value: "그 외 색", otherColor: true }]
+      },
+      {
+        category: "디자인 취향",
+        title: "STAGE 4. 뿡수가 고민 중이야, 어떤 디자인이 좋을까?",
+        description: "심플하고 무난한 스타일일까?\n색다른 로고나 그래픽이 있는\n개성 있는 스타일일까?",
+        key: "design",
+        choices: [
+          { value: "흔한 디자인", icon: "☁", note: "심플하고 무난한 스타일" },
+          { value: "새로운 디자인", icon: "✦", note: "색다른 로고나 그래픽이 들어간 개성 있는 스타일" }
+        ]
+      },
+      {
+        category: "편안한 핏",
+        title: "STAGE 5. 뿡수에게 좋아하는 핏을 알려줘!",
+        description: "포근하고 넉넉한 쪽?\n단정하고 편안한 쪽?\n네 취향을 골라줘.",
+        key: "fit",
+        choices: [
+          { value: "오버핏", icon: "🧸", note: "여유롭고 포근한 핏" },
+          { value: "레귤러핏", icon: "👌", note: "깔끔하고 편안한 핏" }
+        ]
+      },
+      {
+        category: "피하고 싶은 스타일",
+        title: "STAGE 6. 뿡수가 실수하지 않게 알려줘!",
+        description: "평소 잘 입지 않거나\n피하고 싶은 스타일이 있을까?\n여러 개 골라도 돼.",
+        key: "avoid",
+        multiple: true,
+        choices: [
+          { value: "딱히 없어", icon: "🙆", note: "나는 다 괜찮아!", exclusive: true },
+          { value: "큰 로고", icon: "📣", note: "큼직한 로고" },
+          { value: "등판의 큰 그림", icon: "🖼️", note: "눈에 띄는 그래픽" },
+          { value: "눈에 띄는 문구", icon: "🔠", note: "큰 레터링" },
+          { value: "화려한 색", icon: "🌈", note: "쨍하고 화려한 색" },
+          { value: "과한 장식", icon: "💎", note: "디테일이 너무 많아!" }
+        ],
+        customLabel: "다른 지뢰도 있어?",
+        customPlaceholder: "예: 목이 답답한 옷은 별로"
+      },
+      {
+        category: "마지막 힌트",
+        title: "STAGE 7. 뿡수에게 마지막 힌트!",
+        description: "좋아하는 브랜드나 참고할\n스타일 링크가 있다면 알려줘.\n비워도 괜찮아!",
+        key: "opinion",
+        text: true,
+        customLabel: "뿡수에게 남기는 한마디 (선택)",
+        customPlaceholder: "예: 좋아하는 브랜드나 참고할 스타일 링크"
+      }
+    ];
+    const answers = {
+      garment: "",
+      colorFirst: "",
+      colorFirstCustom: "",
+      colorSecond: "",
+      colorSecondCustom: "",
+      design: "",
+      fit: "",
+      avoid: [],
+      avoidCustom: "",
+      opinion: ""
+    };
+    let stageIndex = 0;
+    let transitionTimer = 0;
+    let thankYouTimer = 0;
+    let activeRequestId = "";
+
+    const screenIds = ["start-screen", "game-screen", "complete-screen", "result-screen"];
+    const stageContent = document.getElementById("stage-content");
+    const stageTitle = document.getElementById("stage-title");
+    const stageDescription = document.getElementById("stage-description");
+    const stageCounter = document.getElementById("stage-counter");
+    const stageCategory = document.getElementById("stage-category");
+    const hearts = document.getElementById("hearts");
+    const meter = document.querySelector(".hud-meter");
+    const meterFill = document.getElementById("meter-fill");
+    const continueButton = document.getElementById("continue-button");
+    const errorMessage = document.getElementById("error-message");
+    const boongsooLines = [
+      "음~ 이것도 잘 어울린다!",
+      "무슨 색이 좋아?",
+      "두 번째로 좋아하는 색은 뭐야?",
+      "우와, 점점 멋져지고 있어!",
+      "이런 느낌 너무 좋다!",
+      "(실수할까 삐질삐질)",
+      "마지막 힌트만 부탁해!"
+    ];
+
+    function showScreen(id) {
+      screenIds.forEach((screenId) => {
+        document.getElementById(screenId).classList.toggle("active", screenId === id);
+      });
+    }
+
+    function getSelectedColorName(key) {
+      return answers[key] === "그 외 색"
+        ? answers[`${key}Custom`].trim()
+        : answers[key];
+    }
+
+    function isSameColor(first, second) {
+      return Boolean(first.trim() && second.trim() && first.trim().toLocaleLowerCase() === second.trim().toLocaleLowerCase());
+    }
+
+    function formatColorAnswer(key) {
+      return answers[key] === "그 외 색"
+        ? `기타: ${answers[`${key}Custom`].trim()}`
+        : answers[key];
+    }
+
+    function selectedColor() {
+      return colors.find((color) => color.name === answers.colorFirst)
+        || colors.find((color) => color.name === answers.colorSecond)
+        || colors[0];
+    }
+
+    function drawCharacter(canvas) {
+      const context = canvas.getContext("2d");
+      const pixel = 8;
+      const fill = (x, y, width, height, color) => {
+        context.fillStyle = color;
+        context.fillRect(x * pixel, y * pixel, width * pixel, height * pixel);
+      };
+      const outfit = selectedColor();
+      const accent = colors.find((color) => color.name === answers.colorSecond);
+      const bodyColor = outfit.main;
+      const shadowColor = outfit.shade;
+      const jacket = answers.garment === "후드집업";
+      const oversized = answers.fit === "오버핏";
+      const bodyX = oversized ? 4 : 5;
+      const bodyWidth = oversized ? 12 : 10;
+      const whiteOutline = answers.colorFirst === "흰색";
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      fill(3, 5, 1, 1, "#ffffff");
+      fill(16, 3, 1, 1, "#ffffff");
+      fill(4, 17, 5, 1, "#71675d");
+      fill(11, 17, 5, 1, "#71675d");
+      fill(5, 18, 4, 4, "#85866d");
+      fill(11, 18, 4, 4, "#85866d");
+      fill(6, 19, 1, 2, "#a2a083");
+      fill(12, 19, 1, 2, "#a2a083");
+      fill(4, 21, 5, 1, "#625044");
+      fill(11, 21, 5, 1, "#625044");
+
+      fill(8, 4, 5, 5, "#f5c7a6");
+      fill(7, 3, 7, 2, "#53443f");
+      fill(8, 2, 5, 1, "#53443f");
+      fill(7, 4, 1, 2, "#53443f");
+      fill(13, 4, 1, 2, "#53443f");
+      fill(8, 6, 1, 1, "#392f2c");
+      fill(12, 6, 1, 1, "#392f2c");
+      fill(9, 8, 3, 1, "#d88989");
+      fill(8, 3, 1, 1, "#81706a");
+      fill(10, 3, 1, 1, "#81706a");
+      fill(12, 3, 1, 1, "#81706a");
+
+      if (whiteOutline) fill(bodyX - 1, 8, bodyWidth + 2, 10, "#aaa09b");
+      fill(bodyX, 10, 4, 6, shadowColor);
+      fill(bodyX + bodyWidth - 4, 10, 4, 6, shadowColor);
+      fill(bodyX, 9, bodyWidth, 8, bodyColor);
+      fill(bodyX + 1, 8, bodyWidth - 2, 2, bodyColor);
+      fill(8, 8, 5, 3, shadowColor);
+      fill(9, 8, 3, 2, bodyColor);
+      fill(bodyX, 15, bodyWidth, 2, shadowColor);
+      fill(bodyX + 1, 16, bodyWidth - 2, 1, bodyColor);
+      fill(3, 15, 2, 2, "#f5c7a6");
+      fill(15, 15, 2, 2, "#f5c7a6");
+
+      if (jacket) {
+        fill(9, 10, 1, 7, shadowColor);
+        fill(10, 10, 1, 7, "#f5f0e9");
+        fill(10, 12, 1, 1, shadowColor);
+      }
+      if (accent) {
+        fill(bodyX, 16, 2, 1, accent.main);
+        fill(bodyX + bodyWidth - 2, 16, 2, 1, accent.main);
+      }
+      const markColor = outfit.logo === "#fffdf8" ? "#ffffff" : "#000000";
+      const largeGraphic = answers.design === "새로운 디자인";
+      const smallMark = answers.design === "흔한 디자인";
+      if (largeGraphic) {
+        fill(bodyX + 3, 10, 1, 1, markColor);
+        fill(bodyX + 2, 11, 7, 1, markColor);
+        fill(bodyX + 3, 12, 5, 1, markColor);
+        fill(bodyX + 4, 13, 3, 1, markColor);
+        fill(bodyX + 3, 14, 1, 1, markColor);
+        fill(bodyX + 7, 14, 1, 1, markColor);
+      } else if (smallMark) {
+        const markX = bodyX + bodyWidth - 5;
+        fill(markX + 1, 10, 1, 1, markColor);
+        fill(markX, 11, 3, 1, markColor);
+        fill(markX + 1, 12, 1, 1, markColor);
+        fill(markX + 3, 11, 1, 1, markColor);
+      }
+    }
+
+    function updateCharacters() {
+      document.querySelectorAll(".pixel-character").forEach(drawCharacter);
+      document.querySelectorAll(".boongsoo-character").forEach(drawBoongsoo);
+    }
+
+    function drawBoongsoo(canvas) {
+      const context = canvas.getContext("2d");
+      const pixel = 8;
+      const fill = (x, y, width, height, color) => {
+        context.fillStyle = color;
+        context.fillRect(x * pixel, y * pixel, width * pixel, height * pixel);
+      };
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      fill(7, 20, 3, 2, "#a9745b");
+      fill(12, 20, 3, 2, "#a9745b");
+      fill(8, 17, 2, 4, "#f1c2a8");
+      fill(12, 17, 2, 4, "#f1c2a8");
+
+      fill(9, 0, 3, 2, "#543b35");
+      fill(8, 1, 5, 2, "#543b35");
+      fill(7, 3, 7, 2, "#543b35");
+      fill(6, 4, 1, 4, "#543b35");
+      fill(14, 4, 1, 4, "#543b35");
+      fill(7, 4, 7, 5, "#f4c9ad");
+      fill(7, 4, 7, 1, "#543b35");
+      fill(8, 3, 2, 1, "#543b35");
+      fill(11, 3, 2, 1, "#543b35");
+      fill(8, 6, 1, 1, "#493531");
+      fill(12, 6, 1, 1, "#493531");
+      fill(7, 7, 1, 1, "#ed9eaa");
+      fill(13, 7, 1, 1, "#ed9eaa");
+      fill(9, 8, 3, 1, "#c87878");
+      fill(10, 2, 1, 1, "#f3b4c4");
+
+      fill(10, 9, 2, 1, "#f4c9ad");
+      fill(7, 10, 8, 6, "#f3b7c5");
+      fill(6, 11, 2, 4, "#e99dad");
+      fill(14, 11, 2, 4, "#e99dad");
+      fill(8, 12, 6, 1, "#ffe3ea");
+      fill(7, 15, 8, 3, "#e99dad");
+      fill(9, 16, 4, 1, "#f7ced4");
+      fill(6, 11, 1, 3, "#f4c9ad");
+      fill(15, 11, 1, 3, "#f4c9ad");
+      fill(6, 14, 2, 1, "#f2aebc");
+      fill(14, 14, 2, 1, "#f2aebc");
+      fill(8, 18, 6, 1, "#fff1e5");
+    }
+
+    function makeChoiceButton(choice, stage) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `choice-card${stage.key.startsWith("color") ? " color-choice" : ""}`;
+      button.dataset.value = choice.value;
+      button.setAttribute("aria-pressed", "false");
+
+      if (choice.otherColor) {
+        const swatch = document.createElement("span");
+        swatch.className = "color-swatch other-color-swatch";
+        swatch.textContent = "?";
+        swatch.setAttribute("aria-hidden", "true");
+        button.append(swatch);
+      } else if (choice.swatch) {
+        const swatch = document.createElement("span");
+        swatch.className = "color-swatch";
+        swatch.style.background = choice.swatch;
+        swatch.setAttribute("aria-hidden", "true");
+        button.append(swatch);
+      } else {
+        const icon = document.createElement("span");
+        icon.className = "choice-icon";
+        icon.textContent = choice.icon || "◆";
+        icon.setAttribute("aria-hidden", "true");
+        button.append(icon);
+      }
+
+      const text = document.createElement("span");
+      const name = document.createElement("span");
+      name.className = "choice-name";
+      name.textContent = choice.value;
+      text.append(name);
+      if (choice.note) {
+        const note = document.createElement("span");
+        note.className = "choice-note";
+        note.textContent = choice.note;
+        text.append(note);
+      }
+      button.append(text);
+      button.addEventListener("click", () => selectChoice(stage, choice.value));
+      return button;
+    }
+
+    function renderChoices(stage) {
+      const grid = document.createElement("div");
+      grid.className = `choice-grid${stage.key.startsWith("color") ? " color-grid" : ""}`;
+      stage.choices.forEach((choice) => {
+        if (stage.key === "colorSecond" && !choice.otherColor && isSameColor(choice.value, getSelectedColorName("colorFirst"))) return;
+        const button = makeChoiceButton(choice, stage);
+        const current = answers[stage.key];
+        const isSelected = stage.multiple
+          ? current.includes(choice.value)
+          : current === choice.value;
+        button.classList.toggle("selected", isSelected);
+        button.setAttribute("aria-pressed", String(isSelected));
+        grid.append(button);
+      });
+      stageContent.append(grid);
+      if (stage.key.startsWith("color") && answers[stage.key] === "그 외 색") {
+        const fieldWrap = document.createElement("div");
+        fieldWrap.className = "custom-color-field";
+        const label = document.createElement("label");
+        label.className = "custom-color-label";
+        label.htmlFor = `${stage.key}-custom`;
+        label.textContent = "원하는 색을 적어줘!";
+        const input = document.createElement("input");
+        input.id = label.htmlFor;
+        input.className = "text-input custom-color-input";
+        input.type = "text";
+        input.maxLength = 20;
+        input.autocomplete = "off";
+        input.placeholder = "예: 카키, 버건디";
+        input.value = answers[`${stage.key}Custom`];
+        const hint = document.createElement("p");
+        hint.className = "custom-color-hint";
+        hint.setAttribute("aria-live", "polite");
+        const duplicate = stage.key === "colorSecond" && isSameColor(input.value, getSelectedColorName("colorFirst"));
+        hint.textContent = duplicate ? "1순위랑 같은 색이야!" : "";
+        input.addEventListener("input", () => {
+          answers[`${stage.key}Custom`] = input.value.slice(0, 20);
+          const matchesFirstChoice = stage.key === "colorSecond" && isSameColor(input.value, getSelectedColorName("colorFirst"));
+          hint.textContent = matchesFirstChoice ? "1순위랑 같은 색이야!" : "";
+          errorMessage.textContent = "";
+        });
+        fieldWrap.append(label, input, hint);
+        stageContent.append(fieldWrap);
+      }
+      if (stage.multiple) {
+        const help = document.createElement("p");
+        help.className = "multi-help";
+        help.textContent = "여러 개 골라도 돼. 아무것도 싫지 않다면 ‘딱히 없어’를 눌러줘.";
+        stageContent.append(help);
+      }
+    }
+
+    function renderTextInput(stage) {
+      const label = document.createElement("label");
+      label.className = "field-label";
+      label.htmlFor = stage.key === "avoid" ? "custom-answer" : "opinion-answer";
+      label.textContent = stage.customLabel || "자유 의견 (선택)";
+      const field = stage.text
+        ? document.createElement("textarea")
+        : document.createElement("input");
+      field.id = label.htmlFor;
+      field.className = stage.text ? "text-area" : "text-input";
+      field.placeholder = stage.customPlaceholder || "예: 좋아하는 브랜드나 참고할 스타일 링크";
+      field.maxLength = stage.text ? 1000 : 160;
+      if (stage.text) {
+        field.value = answers.opinion;
+      } else {
+        field.type = "text";
+        field.value = answers.avoidCustom;
+      }
+      field.addEventListener("input", () => {
+        if (stage.text) answers.opinion = field.value;
+        else answers.avoidCustom = field.value;
+      });
+      stageContent.append(label, field);
+    }
+
+    function updateHud() {
+      stageCounter.textContent = `STAGE ${stageIndex + 1} / ${TOTAL_STAGES}`;
+      const completed = stageIndex;
+      hearts.replaceChildren();
+      for (let index = 0; index < TOTAL_STAGES; index += 1) {
+        const heart = document.createElement("span");
+        heart.className = `heart${index < completed ? " filled" : ""}${index === stageIndex ? " current" : ""}`;
+        heart.textContent = "♥";
+        heart.setAttribute("aria-hidden", "true");
+        hearts.append(heart);
+      }
+      meter.setAttribute("aria-valuenow", String(completed));
+      meterFill.style.width = `${completed / TOTAL_STAGES * 100}%`;
+    }
+
+    function renderStage() {
+      const stage = stages[stageIndex];
+      stageTitle.textContent = stage.title;
+      stageDescription.textContent = stage.description;
+      stageCategory.textContent = stage.category;
+      document.getElementById("boongsoo-line").textContent = `뿡수: ${boongsooLines[stageIndex]}`;
+      errorMessage.textContent = "";
+      stageContent.replaceChildren();
+      if (stage.choices) renderChoices(stage);
+      if (stage.text || stage.customLabel) renderTextInput(stage);
+      document.getElementById("back-button").disabled = stageIndex === 0;
+      continueButton.textContent = stageIndex === TOTAL_STAGES - 1 ? "완성하러 가기 →" : "뿡수에게 알려주기 →";
+      const needsCustomColor = stage.key.startsWith("color") && answers[stage.key] === "그 외 색";
+      continueButton.hidden = !stage.multiple && !stage.text && !stage.customLabel && !needsCustomColor;
+      updateHud();
+      updateCharacters();
+    }
+
+    function selectChoice(stage, value) {
+      errorMessage.textContent = "";
+      if (stage.key === "colorFirst" || stage.key === "colorSecond") {
+        answers[`${stage.key}Custom`] = value === "그 외 색" ? answers[`${stage.key}Custom`] : "";
+        answers[stage.key] = value;
+        updateCharacters();
+        if (value === "그 외 색") {
+          renderStage();
+          document.getElementById(`${stage.key}-custom`).focus();
+          return;
+        }
+        const stageNumber = stageIndex;
+        window.setTimeout(() => {
+          if (stageIndex === stageNumber) advanceStage();
+        }, 240);
+        return;
+      }
+      if (stage.multiple) {
+        const selected = answers[stage.key];
+        const choice = stage.choices.find((item) => item.value === value);
+        if (choice.exclusive) {
+          answers[stage.key] = selected.includes(value) ? [] : [value];
+        } else {
+          const exclusiveChoice = stage.choices.find((item) => item.exclusive).value;
+          const withoutExclusive = selected.filter((item) => item !== exclusiveChoice);
+          answers[stage.key] = withoutExclusive.includes(value)
+            ? withoutExclusive.filter((item) => item !== value)
+            : [...withoutExclusive, value];
+        }
+        renderStage();
+        return;
+      }
+
+      answers[stage.key] = value;
+      updateCharacters();
+      const stageNumber = stageIndex;
+      window.setTimeout(() => {
+        if (stageIndex === stageNumber) advanceStage();
+      }, 240);
+    }
+
+    function validateStage() {
+      const stage = stages[stageIndex];
+      if (stage.key === "colorFirst" || stage.key === "colorSecond") {
+        if (!answers[stage.key]) {
+          errorMessage.textContent = "색을 하나 골라줘!";
+          return false;
+        }
+        if (answers[stage.key] === "그 외 색" && !answers[`${stage.key}Custom`].trim()) {
+          errorMessage.textContent = "원하는 색 이름을 적어줘!";
+          document.getElementById(`${stage.key}-custom`).focus();
+          return false;
+        }
+        if (stage.key === "colorSecond" && isSameColor(getSelectedColorName("colorSecond"), getSelectedColorName("colorFirst"))) {
+          errorMessage.textContent = "1순위랑 같은 색이야!";
+          return false;
+        }
+        return true;
+      }
+      if (stage.text) return true;
+      if (!stage.multiple && !stage.customLabel) return Boolean(answers[stage.key]);
+      if (stage.multiple && answers[stage.key].length) return true;
+      if (stage.key === "avoid" && answers.avoidCustom.trim()) return true;
+      errorMessage.textContent = "뿡수에게 피하고 싶은 스타일을 알려주거나 ‘딱히 없어’를 골라줘!";
+      return false;
+    }
+
+    function advanceStage() {
+      if (!validateStage()) return;
+      if (stageIndex < TOTAL_STAGES - 1) {
+        stageIndex += 1;
+        renderStage();
+        return;
+      }
+      showComplete();
+    }
+
+    function showComplete() {
+      updateCharacters();
+      showScreen("complete-screen");
+      window.clearTimeout(transitionTimer);
+      transitionTimer = window.setTimeout(() => {
+        renderResult();
+        const footerNote = document.getElementById("footer-note");
+        footerNote.textContent = "뿡수와 함께 취향 탐험 완료! 다정한 마음이 전해졌어 ☁";
+        footerNote.hidden = false;
+        showScreen("result-screen");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 2400);
+    }
+
+    function resultPersonality() {
+      if (answers.design === "새로운 디자인") {
+        return ["✨", "새로움을 즐기는 그래픽 탐험가", "네가 좋아하는 개성을 뿡수에게 알려줬어. 둘이 함께 고른 스타일이 참 잘 어울려!"];
+      }
+      return ["☁️", "무심한 듯 센스 있는 심플파", "네 취향을 차근차근 알려줘서 뿡수가 든든해졌어. 깔끔하고 포근한 스타일이 참 잘 어울려!"];
+    }
+
+    function makeInventoryRow(label, value) {
+      const row = document.createElement("li");
+      const name = document.createElement("span");
+      name.className = "inventory-label";
+      name.textContent = label;
+      const item = document.createElement("span");
+      item.className = "inventory-value";
+      item.textContent = value || "—";
+      row.append(name, item);
+      return row;
+    }
+
+    function resultText() {
+      const [emoji, title, description] = resultPersonality();
+      const avoid = [...answers.avoid, answers.avoidCustom.trim()].filter(Boolean).join(", ");
+      const values = [
+        ["후드티/집업 선택", answers.garment],
+        ["색상 1순위", formatColorAnswer("colorFirst")],
+        ["색상 2순위", formatColorAnswer("colorSecond")],
+        ["디자인", answers.design],
+        ["핏", answers.fit],
+        ["절대 싫은 스타일", avoid],
+        ["자유 의견", answers.opinion.trim() || "작성하지 않음"]
+      ];
+      return { emoji, title, description, values };
+    }
+
+    function renderResult() {
+      window.clearTimeout(thankYouTimer);
+      const result = resultText();
+      document.getElementById("result-title").textContent = `${result.emoji} ${result.title}`;
+      document.getElementById("result-description").textContent = result.description;
+      const inventory = document.getElementById("inventory");
+      inventory.replaceChildren(...result.values.map(([label, value]) => makeInventoryRow(label, value)));
+      document.querySelector(".inventory-details").open = false;
+      document.getElementById("result-screen").classList.remove("is-celebrating");
+      document.getElementById("thank-you-bubble").hidden = true;
+      updateCharacters();
+      const sendButton = document.getElementById("send-button");
+      sendButton.disabled = false;
+      sendButton.textContent = "뿡수에게 알려주기";
+      sendButton.dataset.sent = "false";
+    }
+
+    function createRequestId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}_${Math.random().toString(36).slice(2)}`;
+    }
+
+    function requestSavedStatus(endpoint, requestId) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `hoodSaveStatus_${requestId.replace(/-/g, "_")}`;
+        const script = document.createElement("script");
+        const url = new URL(endpoint);
+        let finished = false;
+        const cleanup = () => {
+          if (finished) return;
+          finished = true;
+          window.clearTimeout(timeoutId);
+          delete window[callbackName];
+          script.remove();
+        };
+        const timeoutId = window.setTimeout(() => {
+          cleanup();
+          reject(new Error("시트 저장 확인 시간이 초과됐어요."));
+        }, 8000);
+
+        window[callbackName] = (response) => {
+          cleanup();
+          resolve(Boolean(response && response.saved));
+        };
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Apps Script 상태 확인에 실패했어요."));
+        };
+        script.onload = () => {
+          if (!finished) {
+            cleanup();
+            reject(new Error("Apps Script에서 상태 확인 응답을 받지 못했어요."));
+          }
+        };
+        url.searchParams.set("action", "status");
+        url.searchParams.set("id", requestId);
+        url.searchParams.set("callback", callbackName);
+        script.src = url.toString();
+        document.head.append(script);
+      });
+    }
+
+    async function waitForSavedStatus(endpoint, requestId) {
+      const deadline = Date.now() + 12000;
+      while (Date.now() < deadline) {
+        if (await requestSavedStatus(endpoint, requestId)) return true;
+        await new Promise((resolve) => window.setTimeout(resolve, 750));
+      }
+      return false;
+    }
+
+    async function sendAnswers() {
+      const button = document.getElementById("send-button");
+      const endpoint = SHEETS_WEB_APP_URL.trim();
+      if (button.dataset.sent === "true" || button.disabled) return;
+
+      button.disabled = true;
+      document.getElementById("result-screen").classList.add("is-celebrating");
+      const thankYouBubble = document.getElementById("thank-you-bubble");
+      thankYouBubble.hidden = true;
+      window.clearTimeout(thankYouTimer);
+      thankYouTimer = window.setTimeout(() => {
+        thankYouBubble.hidden = false;
+      }, 550);
+      if (!endpoint) return;
+
+      let endpointUrl;
+      try {
+        endpointUrl = new URL(endpoint);
+        if (endpointUrl.protocol !== "https:") throw new Error("웹 앱 URL은 https 주소여야 해요.");
+      } catch (error) {
+        console.error("Apps Script URL 설정 오류:", error);
+        return;
+      }
+
+      if (!activeRequestId) activeRequestId = createRequestId();
+      const payload = {
+        requestId: activeRequestId,
+        garment: answers.garment,
+        colorFirst: formatColorAnswer("colorFirst"),
+        colorSecond: formatColorAnswer("colorSecond"),
+        design: answers.design,
+        fit: answers.fit,
+        avoid: [...answers.avoid, answers.avoidCustom.trim()].filter(Boolean).join(", "),
+        opinion: answers.opinion.trim()
+      };
+
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          await fetch(endpointUrl.toString(), {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(payload)
+          });
+          if (await waitForSavedStatus(endpointUrl.toString(), activeRequestId)) {
+            button.dataset.sent = "true";
+            return;
+          }
+          throw new Error("Save receipt was not confirmed.");
+        } catch (error) {
+          if (attempt === 1) console.error("Background response submission failed after retry:", error);
+          else await new Promise((resolve) => window.setTimeout(resolve, 600));
+        }
+      }
+      button.dataset.sent = "true";
+    }
+
+    function resetGame() {
+      window.clearTimeout(transitionTimer);
+      window.clearTimeout(thankYouTimer);
+      document.getElementById("result-screen").classList.remove("is-celebrating");
+      document.getElementById("thank-you-bubble").hidden = true;
+      activeRequestId = "";
+      Object.assign(answers, {
+        garment: "",
+        colorFirst: "",
+        colorFirstCustom: "",
+        colorSecond: "",
+        colorSecondCustom: "",
+        design: "",
+        fit: "",
+        avoid: [],
+        avoidCustom: "",
+        opinion: ""
+      });
+      const footerNote = document.getElementById("footer-note");
+      footerNote.textContent = "";
+      footerNote.hidden = true;
+      stageIndex = 0;
+      showScreen("start-screen");
+      updateCharacters();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("start-button").addEventListener("click", () => {
+      stageIndex = 0;
+      showScreen("game-screen");
+      renderStage();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    document.getElementById("back-button").addEventListener("click", () => {
+      if (stageIndex > 0) {
+        stageIndex -= 1;
+        renderStage();
+      }
+    });
+    continueButton.addEventListener("click", advanceStage);
+    document.getElementById("send-button").addEventListener("click", sendAnswers);
+    document.getElementById("restart-button").addEventListener("click", resetGame);
+    updateCharacters();
+  </script>
+</body>
+</html>
